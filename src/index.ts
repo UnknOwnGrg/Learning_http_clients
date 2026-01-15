@@ -1,53 +1,40 @@
-import  type { Project } from "./types.js"; 
+import type { Project } from "./types.js";
 
-async function updateProjectById(id : string , projectObj : Project){
-    const path =  `https://api.boot.dev/v1/courses_rest_api/learn-http/projects/${id}`;
-    const response = await fetch(path , {
-        method : "PUT", 
-        mode : "cors", 
-        headers : getHeaders(), 
-        body : JSON.stringify(projectObj)
-    })
-    return response.json();
-}
-
-
-const apiKey = generateKey();
-const projectID = "0194fdc2-fa2f-4cc0-81d3-ff12045b73c8";
-
-const project = await getProjectById(projectID);
-console.log(`Project : '${project.title}' fetched. Data : ${JSON.stringify(project)}\n`);
-
-project.completed = true; 
-
-await updateProjectById(projectID , project);
-console.log(`Project '${project.title}' was completed! \n`); 
-
-const updatedProject = await getProjectById(projectID); 
-console.log(`Project '${updatedProject.title}' fetched. Data: ${JSON.stringify(updatedProject)} \n`,);
-
-async function getProjectById(id : string ) : Promise<Project>{
-    const path = `https://api.boot.dev/v1/courses_rest_api/learn-http/projects/${id}`;
-    const response = await fetch(path, {
-        method : "GET", 
-        mode : "cors", 
-        headers : getHeaders()
-    }); 
-    return response.json();
-}
-
-function generateKey() : string {
-    const characters = "ABCDEF0123456789";
-    let result = "";
-    for (let i = 0; i < 16; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-}
-
-function getHeaders(): Record<string , string>{
-    return {
-        "X-API-Key" : apiKey, 
-        "Content-Type" : "application/json"
+//To check the data are right or not
+function parseProject(projectString: string): void{
+    try {
+        const data = JSON.parse(projectString);
+        return printProjectObj(data);
+    } catch (error) {
+        console.log(`Invalid json string`);
     }
 }
+
+//It will work as the validation for the parse data
+function printProjectObj(parsed: Project){
+    console.log(`id : ${parsed.id}`);
+    console.log(`completed : ${parsed.completed}`);
+    console.log(`title : ${parsed.title}`)
+    console.log(`assignees : ${parsed.assignees}`)
+}
+
+//Right Data
+parseProject(`{
+    "complete" : false, 
+    "id": "0194fdc2-fa2f-4cc0-81d3-ff12045b73c8",
+    "title" :"Unfidget the widgetP", 
+    "assignees": 14
+    }`
+);
+
+console.log("----");
+
+//Wrong Data
+parseProject(`
+{
+  "completed": false,
+  "id":"0f12951e-0a74-4846-a1e0-10b33b13112f"
+  "title":"Report quarterly earnings",
+  "assignees": 1
+}
+`);

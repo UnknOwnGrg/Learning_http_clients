@@ -1,40 +1,42 @@
-import type { Project } from "./types.js";
+import type { UserProfile } from "./types.js";
 
-//To check the data are right or not
-function parseProject(projectString: string): void{
-    try {
-        const data = JSON.parse(projectString);
-        return printProjectObj(data);
-    } catch (error) {
-        console.log(`Invalid json string`);
+const generatedKey = generateKey();
+
+const url = "https://api.boot.dev/v1/courses_rest_api/learn-http/users";
+
+const users = await getUsers(url , generatedKey);
+
+logUsers(users);
+
+
+//Function to abstract users
+function logUsers(users : UserProfile[]){
+    for (const user of users){
+        console.log(`User name : ${user.user.name}, Role : ${user.role} , experience : ${user.experience} , Remote : ${user.remote}`);
     }
 }
 
-//It will work as the validation for the parse data
-function printProjectObj(parsed: Project){
-    console.log(`id : ${parsed.id}`);
-    console.log(`completed : ${parsed.completed}`);
-    console.log(`title : ${parsed.title}`)
-    console.log(`assignees : ${parsed.assignees}`)
+
+//Function to get the Users
+async function getUsers(url : string , apiKey : string): Promise<UserProfile[]> {
+    const response = await fetch(url, {
+        method : "GET", 
+        mode : "cors", 
+        headers : {
+            "X-API-Key" : apiKey, 
+            "Content-Type" : "application/json"
+        }
+    });
+
+    return response.json();
 }
 
-//Right Data
-parseProject(`{
-    "complete" : false, 
-    "id": "0194fdc2-fa2f-4cc0-81d3-ff12045b73c8",
-    "title" :"Unfidget the widgetP", 
-    "assignees": 14
-    }`
-);
-
-console.log("----");
-
-//Wrong Data
-parseProject(`
-{
-  "completed": false,
-  "id":"0f12951e-0a74-4846-a1e0-10b33b13112f"
-  "title":"Report quarterly earnings",
-  "assignees": 1
+//To generate random strings
+function generateKey(): string {
+    const options = "ABCDEF0123456789";
+    let token = ""; 
+    for (let i = 0 ; i < 20 ; i ++){
+        token += options.charAt(Math.floor(Math.random() * options.length));
+    }
+    return token;
 }
-`);

@@ -1,6 +1,13 @@
-export interface Project {
+export interface UserProfile{
     id : string ; 
-    title : string ; 
-    completed : boolean ; 
-    assignees : number;
+    user : User; 
+    experience : number ;
+    remote : boolean; 
+    role : string;
+}
+
+export interface User {
+    name : string ; 
+    location : string ; 
+    age : number ;
 }

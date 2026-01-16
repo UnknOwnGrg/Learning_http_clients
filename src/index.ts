@@ -1,42 +1,34 @@
-import type { UserProfile } from "./types.js";
-
-const generatedKey = generateKey();
-
-const url = "https://api.boot.dev/v1/courses_rest_api/learn-http/users";
-
-const users = await getUsers(url , generatedKey);
-
-logUsers(users);
-
-
-//Function to abstract users
-function logUsers(users : UserProfile[]){
-    for (const user of users){
-        console.log(`User name : ${user.user.name}, Role : ${user.role} , experience : ${user.experience} , Remote : ${user.remote}`);
-    }
-}
-
-
-//Function to get the Users
-async function getUsers(url : string , apiKey : string): Promise<UserProfile[]> {
+async function getUserCode(url : string , apiKey : string ) : Promise<number>{
     const response = await fetch(url, {
         method : "GET", 
         mode : "cors", 
         headers : {
-            "X-API-Key" : apiKey, 
-            "Content-Type" : "application/json"
+            "X-API-Key" : apiKey
         }
     });
-
-    return response.json();
+    return response.status;
 }
 
-//To generate random strings
+const generatedKey = generateKey();
+
+const invalidId = "invalid-id"; 
+const codeFirst = await getUserCode(`https://api.boot.dev/v1/courses_rest_api/learn-http/users/${invalidId}`,
+    generatedKey
+);
+console.log(`id : ${invalidId},
+    staus code : ${codeFirst}`);
+
+const validId =  "0194fdc2-fa2f-4cc0-81d3-ff12045b73c8";
+const codeSecond = await getUserCode(`https://api.boot.dev/v1/courses_rest_api/learn-http/users/${validId}`,generatedKey);
+console.log(`id : ${validId}, 
+    status code : ${codeSecond}`);
+
+
 function generateKey(): string {
-    const options = "ABCDEF0123456789";
-    let token = ""; 
-    for (let i = 0 ; i < 20 ; i ++){
-        token += options.charAt(Math.floor(Math.random() * options.length));
-    }
-    return token;
+  const characters = "ABCDEF0123456789";
+  let result = "";
+  for (let i = 0; i < 16; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
 }
